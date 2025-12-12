@@ -140,7 +140,7 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
                            Lambda2 = Lambda2, A2 = A2, enrollment.hold=enrollment.hold)
       
   
-      o=conduct.p23(data=p23i, DCO1=DCO1, 
+     o=conduct.p23(data=p23i, DCO1=DCO1, 
                     dose_selection_endpoint = dose_selection_endpoint, 
                     targetEvents2 = targetEvents2, 
                     method = method, 
@@ -148,7 +148,7 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
       s[i] = o$s
       
       actual.events[i,] = o$actualEvents
-      actual.time[i] = o$actualTime_FA
+      
       
       if(o$method=="NA"){ # deal with IA exceeds FA YC =============================
         comb.z[i,]=c(NA, o$z)
@@ -158,6 +158,7 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
       # now determined by actual events YC ======================================
       if (K == 1) {bd.z[i] = qnorm(1-alpha)} else {
         if(o$method == "Disjoint Subjects"){
+          actual.time[i] = o$actualTime_FA
           if(boundary.recal == TRUE){
             corr.z = o$w[1]*o$w[2]*sqrt(o$actualEventsS1[1]/o$actualEventsS1[K]) + 
               sqrt(1-o$w[1]^2)*sqrt(1-o$w[2]^2)*sqrt((o$actualEvents[1]-o$actualEventsS1[1])/(o$actualEvents[K]-o$actualEventsS1[K]))
