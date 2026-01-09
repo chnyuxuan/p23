@@ -13,17 +13,94 @@
 #' @examples
 #' p = c(0.01, 0.02, 0.03, 0.013)
 #' dunnett(p)
-dunnett <- function(p){
+dunnett <- function(p, cr=NULL){
   num_trt <- length(p)
   # correlation
-  cr <- matrix(0.5, num_trt, num_trt)
-  diag(cr) <- 1
+  if(is.null(cr)) {
+    cr <- matrix(0.5, num_trt, num_trt)
+    diag(cr) <- 1
+  }
   # equal weight
   w <- rep(1, num_trt)/num_trt
   padjusted <- p.dunnet.ph23(p = p, cr = cr,w = w, upscale = FALSE)
   ans <- min(min(padjusted), 1)
   return(ans)
 }
+
+# Build a Dunnett correlation matrix for logrank Z's from event counts.
+
+# nE_trt[i] = #events in treatment arm i at its DCO (stage 1 subjects here)
+
+# nE_con[i] = #events in control arm at the same DCO used for comparison i
+
+build_cor_from_events <- function(nE_trt, nE_con, make_PD = TRUE, tol = 1e-10) {
+  
+  stopifnot(length(nE_trt) == length(nE_con))
+  
+  k <- length(nE_trt)
+  
+  # Denominator term (treatment + control events) per comparison
+  
+  denom <- nE_trt + nE_con
+  
+  # Fraction of shared control information between comparisons i and j:
+  
+  # nested-cutoff approximation => shared control events = min(n0_i, n0_j)
+  
+  frac_shared <- outer(nE_con, nE_con, pmin) / outer(nE_con, nE_con, pmax)
+  
+  # Core Dunnett-type correlation term due to sharing the same control:
+  
+  #   (n_i n_j)/((n_i+n0_i)(n_j+n0_j))
+  
+  core <- outer(nE_trt, nE_trt) / outer(denom, denom)
+  
+  # Combine the two components and take square root to get correlations
+  
+  cr <- sqrt(frac_shared * core)
+  
+  # Guard against 0/0 or Inf from zero event counts
+  
+  cr[!is.finite(cr)] <- 0
+  
+  # Enforce correlation matrix structure
+  
+  diag(cr) <- 1
+  
+  cr <- (cr + t(cr)) / 2  # exact symmetry
+  
+  # Optional: enforce positive-definiteness (PD) for MVN calculations
+  
+  # (often needed for mvtnorm / multivariate Dunnett computations)
+  
+  if (make_PD) {
+    
+    ev_min <- min(eigen(cr, symmetric = TRUE, only.values = TRUE)$values)
+    
+    if (ev_min < -tol) {
+      
+      if (requireNamespace("Matrix", quietly = TRUE)) {
+        
+        cr <- as.matrix(Matrix::nearPD(cr, corr = TRUE)$mat)
+        
+        diag(cr) <- 1
+        
+        cr <- (cr + t(cr)) / 2
+        
+      } else {
+        
+        warning("Matrix not installed; returning a possibly non-PD correlation matrix.")
+        
+      }
+      
+    }
+    
+  }
+  
+  cr
+  
+}
+
 
 ## direct copy of gMCP:::p.dunnet, but added seed = 20240716 for pmvnorm so that the results are reproducible. 
 p.dunnet.ph23 <- function(p,cr,w,upscale, alternatives="less"){

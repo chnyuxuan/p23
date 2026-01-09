@@ -169,7 +169,9 @@ simu.power.p23 = function(nSim=10, n1 = rep(50, 4), n2 = rep(200, 2), m = c(9,9,
       }
     } else if (o$method == "Disjoint Subjects") {
       for (j in 1:K){
-        oj = comb.pvalue.p23(z1=matrix(o$z1[j, ], nrow=1),  z2 = o$z2[,j], bd.z=bd.z[i,j], w=o$w[,j], selected.dose = n.arms-1, method=multiplicity.method)
+        cr.j = build_cor_from_events(o$n.events_trt[j,], o$n.events_ctrl[j,])
+        oj = comb.pvalue.p23(z1=matrix(o$z1[j, ], nrow=1),  z2 = o$z2[,j], bd.z=bd.z[i,j], w=o$w[,j], selected.dose = n.arms-1, method=multiplicity.method, 
+                             cr=array(cr.j, dim = c(nrow(cr.j), ncol(cr.j), 1)))
         comb.z[i, j] = oj$comb.z; 
       }
     } else if (o$method == "Mixture") {

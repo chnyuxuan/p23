@@ -4,7 +4,7 @@
 \alias{dunnett}
 \title{Adjusted p value for testing H_J using Dunnett method}
 \usage{
-dunnett(p)
+dunnett(p, cr = NULL)
 }
 \arguments{
 \item{p}{A vector of individual raw p values in J.}

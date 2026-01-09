@@ -12,7 +12,8 @@ comb.pvalue.p23(
   bd.z = 1.96,
   w = 0.2,
   selected.dose = NULL,
-  method = "simes"
+  method = "simes",
+  cr = NULL
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ comb.pvalue.p23(
 \item{selected.dose}{Selected dose. If NULL, the dose will be determined based on max(z1(i, )) for each trial i}
 
 \item{method}{"simes", "Dunnett".}
+
+\item{cr}{correlation matrix for Dunnett}
 }
 \value{
 Returned values include:

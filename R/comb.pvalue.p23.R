@@ -12,6 +12,7 @@
 #' @param bd.z rejection boundary in z scale for the combination test
 #' @param selected.dose Selected dose. If NULL, the dose will be determined based on max(z1(i, )) for each trial i
 #' @param method "simes", "Dunnett".
+#' @param cr correlation matrix for Dunnett
 #' 
 #' @return Returned values include:
 #' \describe{
@@ -94,7 +95,7 @@
 #' @importFrom stats pnorm qnorm
 #' @export 
 #' 
-comb.pvalue.p23 = function(z1, z2, p1=NULL, p2=NULL, bd.z=1.96, w=0.2, selected.dose = NULL, method="simes"){
+comb.pvalue.p23 = function(z1, z2, p1=NULL, p2=NULL, bd.z=1.96, w=0.2, selected.dose = NULL, method="simes", cr=NULL){
   n.doses = ncol(z1) #only works for up to 3 dose levels in this program.
   N = nrow(z1) #number of trials
   
@@ -126,7 +127,7 @@ comb.pvalue.p23 = function(z1, z2, p1=NULL, p2=NULL, bd.z=1.96, w=0.2, selected.
   
   #Simes and dunnett methods for adjustment
   p = 1 - pnorm(z1)
-  p1s = rep(NA, N) #final adjusted p for stage 1 on the selected dose s with Closed testing procedure
+  p1s = rep(NA, N) # final adjusted p for stage 1 on the selected dose s with Closed testing procedure
   
   if (n.doses > 1) {
     if (method == "simes") {
@@ -149,11 +150,12 @@ comb.pvalue.p23 = function(z1, z2, p1=NULL, p2=NULL, bd.z=1.96, w=0.2, selected.
       
       for (i in 1:N){
         #adjustment for all p values
-        dunnett.p3[i] = dunnett(p[i,])
+        cr_i = cr[,,i] 
+        dunnett.p3[i] = dunnett(p[i,], cr=cr_i)
         
         #adjustment for any 2 p values that includes s
         unselected = (1:n.doses)[-s[i]]
-        for (j in 1:length(unselected)){dunnett.p2[i,j] = dunnett(c(p[i, s[i]], p[i,unselected[j]]))}
+        for (j in 1:length(unselected)){dunnett.p2[i,j] = dunnett(c(p[i, s[i]], p[i,unselected[j]]), cr=cr_i[c(s[i],unselected[j]),c(s[i],unselected[j])])}
         #final adjusted p by CTP
         p1s[i] = max(dunnett.p3[i], dunnett.p2[i,], p[i, s[i]])
       }

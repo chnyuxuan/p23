@@ -212,29 +212,34 @@ conduct.p23 = function(data=NULL, DCO1=16, targetEvents2 = c(300, 380), dose_sel
     
     #2nd component in weighted z as of Stage 2 subjects at each analysis
     z2 = z21 = w = rep(NA, K)
+    
+    # number of events at each analysis YC ==============================
+    n.events = matrix(NA, nrow=K, ncol=2)
 
     #multiplicity adjustment needs z from IAd for the unselected doses
-    # z1.IAd = sel$z1[-s] 
-    # modified by YC ==========================================================
-    z1s = rep(NA, n.arms-1)
-    dat1cut.IAD = f.dataCut(data=data[data$stage == 1 & data$group!=0,], DCO=DCO1)
-    
-    dat1cutIA = f.dataCut(data=data[data$group%in%c(0,s)], targetEvents = targetEvents2[1]) %>% 
-      dplyr::filter(stage==1, group==0)
-    
-    dat1cut = rbind(dat1cut.IAD, dat1cutIA)
-    
-    for (j in 1:(n.arms-1)){
-      datj = dat1cut[(dat1cut$group == 0 | dat1cut$group == j), ]
-      z1s[j] = logrank.one.sided(time=datj$survTimeCut, cnsr=datj$cnsrCut, group=datj$group)$z
-    }
-    z1.IAd = z1s[-s]
-    # END of modification =====================================================
+    z1.IAd = sel$z1[-s]
+    # # modified by YC ==========================================================
+    # z1s = rep(NA, n.arms-1)
+    # dat1cut.IAD = f.dataCut(data=data[data$stage == 1 & data$group!=0,], DCO=DCO1)
+    # 
+    # dat1cutIA = f.dataCut(data=data[data$group%in%c(0,s)], targetEvents = targetEvents2[1]) %>% 
+    #   dplyr::filter(stage==1, group==0)
+    # 
+    # dat1cut = rbind(dat1cut.IAD, dat1cutIA)
+    # 
+    # for (j in 1:(n.arms-1)){
+    #   datj = dat1cut[(dat1cut$group == 0 | dat1cut$group == j), ]
+    #   z1s[j] = logrank.one.sided(time=datj$survTimeCut, cnsr=datj$cnsrCut, group=datj$group)$z
+    # }
+    # z1.IAd = z1s[-s]
+    # # END of modification =====================================================
     
     
     for (k in 1:K){
       #4. data cut for kth analysis
       dat23k = f.dataCut(data=dat23, targetEvents=targetEvents2[k])
+      
+      n.events[k,] = t(table(dat23k$group, dat23k$cnsrCut))[1,]
       
       #stage 1 subjects at analysis k
       dat1k = dat23k[dat23k$stage == 1, ] 
@@ -357,6 +362,10 @@ conduct.p23 = function(data=NULL, DCO1=16, targetEvents2 = c(300, 380), dose_sel
     o$actualEventsS1 = c(actualEvents_S1_IA, actualEvents_S1_FA)
     o$z1 = z1; o$z2 = matrix(z2, nrow=1); o$w = matrix(w, nrow=1)
     o$actualTime_FA = actualTime_FA
+    o$n.events_trt = matrix(rep(sel$n.events_IAD[-1], K), byrow=TRUE, nrow = K)
+    o$n.events_trt[,s] = n.events[,2]
+    o$n.events_ctrl = matrix(rep(sel$n.events_IAD[1], (n.arms-1)*K), byrow=TRUE, nrow = K)
+    o$n.events_ctrl[,s] = n.events[,1]
   } else if (method == "Mixture") {
     o$z1.unselected = z1.IAd
     o$z11 = z11; o$z21 = z21; o$omega1 = omega1
