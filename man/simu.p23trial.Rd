@@ -19,6 +19,7 @@ simu.p23trial(
      (t/12) * as.numeric(t <= 12) + as.numeric(t > 12)
  },
   A2 = 12,
+  drop = 0,
   enrollment.hold = 4
 )
 }
@@ -42,6 +43,8 @@ simu.p23trial(
 \item{Lambda2}{Enrollment distribution function (CDF) for stage 2.}
 
 \item{A2}{Enrollment period for Stage 2}
+
+\item{drop}{Drop out rate per month}
 
 \item{enrollment.hold}{Holding period in months after DCO1 of Stage 1 prior to enrollment of Stage 2 patients. 0 means seamless enrollment.}
 }

@@ -18,6 +18,7 @@ simu.ph23data(
      (t/12) * as.numeric(t <= 12) + as.numeric(t > 12)
  },
   A2 = 12,
+  drop = 0,
   enrollment.hold = 4,
   targetEvents2 = c(300, 380),
   method = "Independent Incremental"
@@ -41,6 +42,8 @@ simu.ph23data(
 \item{Lambda2}{Enrollment distribution function (CDF) for stage 2.}
 
 \item{A2}{Enrollment period for Stage 2}
+
+\item{drop}{Drop off rate per month}
 
 \item{enrollment.hold}{Holding period in months after DCO1 of Stage 1 prior to enrollment of Stage 2 patients. 0 means seamless enrollment.}
 

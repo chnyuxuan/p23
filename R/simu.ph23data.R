@@ -13,6 +13,7 @@
 #' @param A1 Enrollment period for Stage 1
 #' @param Lambda1 Enrollment distribution function (CDF) for stage 1.
 #' @param DCO1 Data cutoff date for Stage 1
+#' @param drop Drop off rate per month
 #' @param enrollment.hold Holding period in months after DCO1 of Stage 1 prior to enrollment of Stage 2 patients. 0 means seamless enrollment.
 #' @param A2 Enrollment period for Stage 2
 #' @param Lambda2 Enrollment distribution function (CDF) for stage 2.
@@ -62,6 +63,7 @@
 simu.ph23data = function(nSim=1000, n1 = c(50, 50, 50, 50), n2 = c(200, 200), m = c(9, 11, 13, 8), 
                           Lambda1 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A1 = 12,
                           DCO1 = 16, Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
+                         drop = 0,
                           enrollment.hold=4, targetEvents2 = c(300, 380), method = "Independent Incremental"){
    
   if (method == "Independent Incremental"){
@@ -83,7 +85,7 @@ simu.ph23data = function(nSim=1000, n1 = c(50, 50, 50, 50), n2 = c(200, 200), m 
      
      #1. simulate Stage 1 survival data
      for (j in 1:n.arms){
-       dat1[[j]] = simu.single.arm(n=n1[j], m=m[j], Lambda=Lambda1, A=A1, drop=0, DCO=DCO1)[[1]]
+       dat1[[j]] = simu.single.arm(n=n1[j], m=m[j], Lambda=Lambda1, A=A1, drop=drop, DCO=DCO1)[[1]]
        dat1[[j]]$group = j
        if (j == n.arms){dat1[[j]]$group = 0}
      }
@@ -108,8 +110,8 @@ simu.ph23data = function(nSim=1000, n1 = c(50, 50, 50, 50), n2 = c(200, 200), m 
      #If there is enrollment hold
       
      #4. simulate Stage 2 data (control and selected dose s)
-     dat20 = simu.single.arm(n=n2[2], m=m[n.arms], Lambda=Lambda2, A=A2, drop=0, DCO=Inf)[[1]]
-     dat2s = simu.single.arm(n=n2[1], m=m[s[i]], Lambda=Lambda2, A=A2, drop=0, DCO=Inf)[[1]]
+     dat20 = simu.single.arm(n=n2[2], m=m[n.arms], Lambda=Lambda2, A=A2, drop=drop, DCO=Inf)[[1]]
+     dat2s = simu.single.arm(n=n2[1], m=m[s[i]], Lambda=Lambda2, A=A2, drop=drop, DCO=Inf)[[1]]
      dat20$group=0; dat2s$group = s[i]
 
      #5. Enrollment gap
@@ -181,7 +183,7 @@ simu.ph23data = function(nSim=1000, n1 = c(50, 50, 50, 50), n2 = c(200, 200), m 
       
       #1. simulate Stage 1 survival data
       for (j in 1:n.arms){
-        dat1[[j]] = simu.single.arm(n=n1[j], m=m[j], Lambda=Lambda1, A=A1, drop=0, DCO=DCO1)[[1]]
+        dat1[[j]] = simu.single.arm(n=n1[j], m=m[j], Lambda=Lambda1, A=A1, drop=drop, DCO=DCO1)[[1]]
         dat1[[j]]$group = j
         if (j == n.arms){dat1[[j]]$group = 0}
       }
@@ -206,8 +208,8 @@ simu.ph23data = function(nSim=1000, n1 = c(50, 50, 50, 50), n2 = c(200, 200), m 
       #If there is enrollment hold
       
       #4. simulate Stage 2 data (control and selected dose s)
-      dat20 = simu.single.arm(n=n2[2], m=m[n.arms], Lambda=Lambda2, A=A2, drop=0, DCO=Inf)[[1]]
-      dat2s = simu.single.arm(n=n2[1], m=m[s[i]], Lambda=Lambda2, A=A2, drop=0, DCO=Inf)[[1]]
+      dat20 = simu.single.arm(n=n2[2], m=m[n.arms], Lambda=Lambda2, A=A2, drop=drop, DCO=Inf)[[1]]
+      dat2s = simu.single.arm(n=n2[1], m=m[s[i]], Lambda=Lambda2, A=A2, drop=drop, DCO=Inf)[[1]]
       dat20$group=0; dat2s$group = s[i]
       
       #5. Enrollment gap

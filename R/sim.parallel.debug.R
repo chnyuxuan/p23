@@ -15,7 +15,6 @@
 #' @param enrollment.hold Holding period in months after DCO1 of Stage 1 prior to enrollment of Stage 2 patients. 0 means seamless enrollment.
 #' @param A2 Enrollment period for Stage 2
 #' @param Lambda2 Enrollment distribution function (CDF) for stage 2.
-#' @param drop Dropout rate per month 
 #' @param targetEvents2 Planned target number of events for Stage 2. Either targetEvents2 must be provided. 
 #' @param alpha Type I error (one-sided) for testing the selected dose, usually 0.025.
 #' @param sf Spending functions. acceptable options include all spending functions in gsDesign R package, for example, "gsDesign::sfLDOF"
@@ -47,7 +46,7 @@
 #' #Stage 2 has 2 planned analyses at 300 and 380 events respectively.
 #'
 #' #Dose selection decision is NOT based on ORR.
-#' simu.power.p23.parallel(nSim=10, n1 = rep(50, 4), n2 = rep(200, 2), m = c(9, 9, 9, 9), 
+#' sim.parallel.debug(nSim=10, n1 = rep(50, 4), n2 = rep(200, 2), m = c(9, 9, 9, 9), 
 #' orr = NULL, rho = NULL, dose_selection_endpoint = "not ORR",
 #' Lambda1 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A1 = 12,
 #' Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
@@ -55,7 +54,7 @@
 #' alpha=0.025, method = "Independent Incremental", nCore = 8)
 #' 
 #' #Example (2): #Dose selection decision based on ORR
-#' simu.power.p23.parallel(nSim=100000, n1 = rep(50, 4), n2 = rep(200, 4), m = c(9, 9, 9, 9), 
+#' sim.parallel.debug(nSim=100000, n1 = rep(50, 4), n2 = rep(200, 4), m = c(9, 9, 9, 9), 
 #' orr = c(0.25, 0.3, 0.4, 0.2), rho = 0.7, dose_selection_endpoint = "ORR",
 #' Lambda1 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A1 = 12,
 #' Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
@@ -63,7 +62,7 @@
 #' alpha=0.025, method = "Independent Incremental",
 #' boundary.recal = TRUE,  nCore = 10)
 #' 
-#' simu.power.p23.parallel(nSim=1000, n1 = rep(50, 4), n2 = rep(200, 4), m = c(9, 9, 9, 9), 
+#' sim.parallel.debug(nSim=1000, n1 = rep(50, 4), n2 = rep(200, 4), m = c(9, 9, 9, 9), 
 #' orr = c(0.25, 0.3, 0.3, 0.2), rho = 0.7, dose_selection_endpoint = "ORR",
 #' Lambda1 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A1 = 12,
 #' Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
@@ -71,7 +70,7 @@
 #' alpha=0.025, multiplicity.method = "simes", method = "Disjoint Subjects", 
 #' boundary.recal = TRUE, nCore = 8)
 #' 
-#' simu.power.p23.parallel(nSim=10, n1 = rep(50, 4), n2 = rep(200, 4), m = c(9, 9, 9, 9), 
+#' sim.parallel.debug(nSim=10, n1 = rep(50, 4), n2 = rep(200, 4), m = c(9, 9, 9, 9), 
 #' orr = c(0.25, 0.3, 0.3, 0.2), rho = 0.7, dose_selection_endpoint = "ORR",
 #' Lambda1 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A1 = 12,
 #' Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
@@ -85,11 +84,10 @@
 #' 
 # simu.power.p23.onecore(bd.z=2)
 
-simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2), m = c(9,9, 9, 9), 
+sim.parallel.debug <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2), m = c(9,9, 9, 9), 
                                     orr = c(0.25, 0.3, 0.4, 0.2), rho = 0.7, dose_selection_endpoint = "ORR",
                                     Lambda1 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A1 = 12,
                                     Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
-                                    drop = 0,
                                     enrollment.hold=4, DCO1 = 16, targetEvents2=c(300, 380), 
                                     e1 = NULL,
                                     alpha=0.025, sf=gsDesign::sfLDOF, multiplicity.method="simes",
@@ -100,15 +98,14 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
   
   
   simu.power.p23.onecore <- function(nSim=10, n1 = rep(50, 4), n2 = rep(200, 2), m = c(9,9, 9, 9), 
-                            orr = c(0.25, 0.3, 0.4, 0.2), rho = 0.7, dose_selection_endpoint = "ORR",
-                            Lambda1 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A1 = 12,
-                            Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
-                            drop = drop,
-                            enrollment.hold=4, DCO1 = 16, targetEvents2=c(300, 380),
-                            e1 = NULL,
-                            alpha=0.025, sf = gsDesign::sfLDOF, multiplicity.method = "simes",
-                            method = "Independent Incremental", bd.z = NULL,
-                            boundary.recal = TRUE, ORRdiff = 0){
+                                     orr = c(0.25, 0.3, 0.4, 0.2), rho = 0.7, dose_selection_endpoint = "ORR",
+                                     Lambda1 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A1 = 12,
+                                     Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
+                                     enrollment.hold=4, DCO1 = 16, targetEvents2=c(300, 380),
+                                     e1 = NULL,
+                                     alpha=0.025, sf = gsDesign::sfLDOF, multiplicity.method = "simes",
+                                     method = "Independent Incremental", bd.z = NULL,
+                                     boundary.recal = TRUE, ORRdiff = 0){
     
     #Number of analyses in stage 2
     K = length(targetEvents2)
@@ -140,11 +137,10 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
       p23i = simu.p23trial(n1 = n1, n2 = n2, m = m, 
                            orr = orr, rho = rho, dose_selection_endpoint = dose_selection_endpoint,
                            Lambda1 = Lambda1, A1 = A1, 
-                           Lambda2 = Lambda2, A2 = A2, enrollment.hold=enrollment.hold,
-                           drop = drop)
+                           Lambda2 = Lambda2, A2 = A2, enrollment.hold=enrollment.hold)
       
-  
-     o=conduct.p23(data=p23i, DCO1=DCO1, 
+      
+      o=conduct.p23(data=p23i, DCO1=DCO1, 
                     dose_selection_endpoint = dose_selection_endpoint, 
                     targetEvents2 = targetEvents2, 
                     method = method, 
@@ -152,17 +148,16 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
       s[i] = o$s
       
       actual.events[i,] = o$actualEvents
-      
+      actual.time[i] = o$actualTime_FA
       
       if(o$method=="NA"){ # deal with IA exceeds FA YC =============================
         comb.z[i,]=c(NA, o$z)
         next
       }
-
+      
       # now determined by actual events YC ======================================
       if (K == 1) {bd.z[i] = qnorm(1-alpha)} else {
         if(o$method == "Disjoint Subjects"){
-          actual.time[i] = o$actualTime_FA
           if(boundary.recal == TRUE){
             corr.z = o$w[1]*o$w[2]*sqrt(o$actualEventsS1[1]/o$actualEventsS1[K]) + 
               sqrt(1-o$w[1]^2)*sqrt(1-o$w[2]^2)*sqrt((o$actualEvents[1]-o$actualEventsS1[1])/(o$actualEvents[K]-o$actualEventsS1[K]))
@@ -186,33 +181,31 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
         }
       } else if (o$method == "Disjoint Subjects") {
         for (j in 1:K){
-          cr.j = build_cor_from_events(o$n.events_trt[j,], o$n.events_ctrl[j,])
-          oj = comb.pvalue.p23(z1=matrix(o$z1[j, ], nrow=1),  z2 = o$z2[,j], bd.z=bd.z[i,j], w=o$w[,j], selected.dose = n.arms-1, method=multiplicity.method, 
-                               cr=array(cr.j, dim = c(nrow(cr.j), ncol(cr.j), 1)))
+          oj = comb.pvalue.p23(z1=matrix(o$z1[j, ], nrow=1),  z2 = o$z2[,j], bd.z=bd.z[i,j], w=o$w[,j], selected.dose = n.arms-1, method=multiplicity.method)
           comb.z[i, j] = oj$comb.z; 
         }
       } else if (o$method == "Mixture") {
         comb.z[i, ] = o$z.tilde
       }
     }
-  
+    
     
     re = list(comb.z=comb.z, s=s, bd.z=bd.z, actual.events=actual.events, actual.time=actual.time)
     
     return(re)
   }
   
-  ## Start simulation 
-  if(is.null(nCore)){
-    nCore = max(parallel::detectCores()-4, 8)
-  }
-  #nsim_per_cluster <- 1000
-  cl <- parallel::makeCluster(nCore, type = "PSOCK")
-  doParallel::registerDoParallel(cl)
-  
-  nsim_per_cluster = ceiling(nSim/nCore)
-  nsim_last_cluster = nSim - nsim_per_cluster*(nCore-1)
-  
+  # ## Start simulation 
+  # if(is.null(nCore)){
+  #   nCore = max(parallel::detectCores()-4, 8)
+  # }
+  # #nsim_per_cluster <- 1000
+  # cl <- parallel::makeCluster(nCore, type = "PSOCK")
+  # doParallel::registerDoParallel(cl)
+  # 
+  # nsim_per_cluster = ceiling(nSim/nCore)
+  # nsim_last_cluster = nSim - nsim_per_cluster*(nCore-1)
+  # 
   #Number of analyses in stage 2
   K = length(targetEvents2)
   
@@ -226,19 +219,29 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
   # }
   
   
-  # Use parLapply to run in parallel
-  clusterSetRNGStream(cl, iseed = seed)
-  results <- parallel::parLapply(cl, c(rep(nsim_per_cluster, nCore-1), nsim_last_cluster), fun = simu.power.p23.onecore,
-                                 n1 = n1, n2 = n2, m = m, 
-                                 orr = orr, rho = rho, dose_selection_endpoint = dose_selection_endpoint,
-                                 Lambda1 = Lambda1, A1 = A1,
-                                 Lambda2 = Lambda2, A2 = A2,
-                                 enrollment.hold=enrollment.hold, DCO1 = DCO1, targetEvents2=targetEvents2, 
-                                 e1 = e1,
-                                 alpha=alpha, sf=sf, multiplicity.method=multiplicity.method,
-                                 method = method, bd.z=NULL,
-                                 boundary.recal = boundary.recal, ORRdiff=ORRdiff
-  )
+  # # Use parLapply to run in parallel
+  # clusterSetRNGStream(cl, iseed = seed)
+  # results <- parallel::parLapply(cl, c(rep(nsim_per_cluster, nCore-1), nsim_last_cluster), fun = simu.power.p23.onecore,
+  #                                n1 = n1, n2 = n2, m = m, 
+  #                                orr = orr, rho = rho, dose_selection_endpoint = dose_selection_endpoint,
+  #                                Lambda1 = Lambda1, A1 = A1,
+  #                                Lambda2 = Lambda2, A2 = A2,
+  #                                enrollment.hold=enrollment.hold, DCO1 = DCO1, targetEvents2=targetEvents2, 
+  #                                e1 = e1,
+  #                                alpha=alpha, sf=sf, multiplicity.method=multiplicity.method,
+  #                                method = method, bd.z=NULL,
+  #                                boundary.recal = boundary.recal, ORRdiff=ORRdiff
+  # )
+  
+  results <- simu.power.p23.onecore(n1 = n1, n2 = n2, m = m, 
+                                   orr = orr, rho = rho, dose_selection_endpoint = dose_selection_endpoint,
+                                   Lambda1 = Lambda1, A1 = A1,
+                                   Lambda2 = Lambda2, A2 = A2,
+                                   enrollment.hold=enrollment.hold, DCO1 = DCO1, targetEvents2=targetEvents2,
+                                   e1 = e1,
+                                   alpha=alpha, sf=sf, multiplicity.method=multiplicity.method,
+                                   method = method, bd.z=NULL,
+                                   boundary.recal = boundary.recal, ORRdiff=ORRdiff)
   
   
   comb.zall <- c()
@@ -293,8 +296,8 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
     o$generalized.pow = generalized.pow
   }
   
-  # Stop the cluster
-  parallel::stopCluster(cl)
+  # # Stop the cluster
+  # parallel::stopCluster(cl)
   
   return(o)
   

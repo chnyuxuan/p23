@@ -15,6 +15,7 @@
 #' @param enrollment.hold Holding period in months after DCO1 of Stage 1 prior to enrollment of Stage 2 patients. 0 means seamless enrollment.
 #' @param A2 Enrollment period for Stage 2
 #' @param Lambda2 Enrollment distribution function (CDF) for stage 2.
+#' @param drop Dropout rate per month 
 #' @param targetEvents2 Planned target number of events for Stage 2. Either targetEvents2 must be provided. 
 #' @param alpha Type I error (one-sided) for testing the selected dose, usually 0.025.
 #' @param sf Spending functions. acceptable options include all spending functions in gsDesign R package, for example, "gsDesign::sfLDOF"
@@ -96,6 +97,7 @@ simu.power.p23 = function(nSim=10, n1 = rep(50, 4), n2 = rep(200, 2), m = c(9,9,
                           Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
                           enrollment.hold=4, DCO1 = 16, targetEvents2=c(300, 380), 
                           e1 = NULL,
+                          drop = 0,
                           alpha=0.025, sf=gsDesign::sfLDOF, multiplicity.method="simes",
                           method = "Independent Incremental", ORRdiff = 0
                           ){
@@ -134,7 +136,9 @@ simu.power.p23 = function(nSim=10, n1 = rep(50, 4), n2 = rep(200, 2), m = c(9,9,
     p23i = simu.p23trial(n1 = n1, n2 = n2, m = m, 
                              orr = orr, rho = rho, dose_selection_endpoint = dose_selection_endpoint,
                              Lambda1 = Lambda1, A1 = A1, 
-                             Lambda2 = Lambda2, A2 = A2, enrollment.hold=enrollment.hold)
+                             Lambda2 = Lambda2, A2 = A2,
+                         drop = drop,
+                         enrollment.hold=enrollment.hold)
     o=conduct.p23(data=p23i, DCO1=DCO1, 
                   dose_selection_endpoint = dose_selection_endpoint, 
                   targetEvents2 = targetEvents2, method = method, 

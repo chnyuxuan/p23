@@ -24,6 +24,7 @@ simu.power.p23(
   DCO1 = 16,
   targetEvents2 = c(300, 380),
   e1 = NULL,
+  drop = 0,
   alpha = 0.025,
   sf = gsDesign::sfLDOF,
   multiplicity.method = "simes",
@@ -59,6 +60,8 @@ simu.power.p23(
 \item{DCO1}{Data cutoff date for Stage 1}
 
 \item{targetEvents2}{Planned target number of events for Stage 2. Either targetEvents2 must be provided.}
+
+\item{drop}{Dropout rate per month}
 
 \item{alpha}{Type I error (one-sided) for testing the selected dose, usually 0.025.}
 
