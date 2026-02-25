@@ -59,7 +59,7 @@ simu.single.arm = function(n = 100, m = 10,
 
   #(2) Drop Off data
   ############################
-  if (drop > 0) {W0 = rexp(n, rate=-log(1-drop)/12)} else {W = rep(Inf, n)}
+  if (drop > 0) {W = rexp(n, rate=-log(1-drop)/12)} else {W = rep(Inf, n)}
 
   ############################
   #Censor data from Drop-off
