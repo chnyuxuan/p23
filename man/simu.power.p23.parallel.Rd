@@ -20,7 +20,7 @@ simu.power.p23.parallel(
      (t/12) * as.numeric(t <= 12) + as.numeric(t > 12)
  },
   A2 = 12,
-  drop = 0,
+  drop = c(0, 0, 0, 0),
   enrollment.hold = 4,
   DCO1 = 16,
   targetEvents2 = c(300, 380),
@@ -58,7 +58,7 @@ simu.power.p23.parallel(
 
 \item{A2}{Enrollment period for Stage 2}
 
-\item{drop}{Dropout rate per month}
+\item{drop}{Dropout rate per year}
 
 \item{enrollment.hold}{Holding period in months after DCO1 of Stage 1 prior to enrollment of Stage 2 patients. 0 means seamless enrollment.}
 

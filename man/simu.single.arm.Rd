@@ -26,7 +26,7 @@ simu.single.arm(
 
 \item{A}{Enrollment period}
 
-\item{drop}{Dropout rate per month}
+\item{drop}{Dropout rate per year}
 
 \item{DCO}{Data cutoff date for Stage 1}
 

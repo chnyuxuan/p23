@@ -15,7 +15,7 @@
 #' @param rho Correlation between ORR and time to event endpoint
 #' @param Lambda Enrollment distribution function (CDF) 
 #' @param A Enrollment period
-#' @param drop Dropout rate per month
+#' @param drop Dropout rate per year
 #' @param DCO Data cutoff date for Stage 1
 #' @param targetEvents Planned target number of events. Either targetEvents or 
 #' DCO must be provided. 
@@ -80,7 +80,7 @@ simu.single.arm.hz <- function(n = 100, m = 10, orr = 0.2, rho = 0.7,
 
   #(2) Drop Off data
   ############################
-  if (drop > 0) {W0 = rexp(n, rate=-log(1-drop))} else {W = rep(Inf, n)}
+  if (drop > 0) {W0 = rexp(n, rate=-log(1-drop)/12)} else {W = rep(Inf, n)}
 
   ############################
   #Censor data from Drop-off

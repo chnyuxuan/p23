@@ -16,7 +16,7 @@
 #' @param enrollment.hold Holding period in months after DCO1 of Stage 1 prior to enrollment of Stage 2 patients. 0 means seamless enrollment.
 #' @param A2 Enrollment period for Stage 2
 #' @param Lambda2 Enrollment distribution function (CDF) for stage 2.
-#' @param drop Drop out rate per month 
+#' @param drop Drop out rate per month of each arm
 #' 
 #' @return A phase 2/3 trial dataframe with variables
 #' \describe{
@@ -66,7 +66,7 @@ simu.p23trial = function(n1 = c(50, 50, 50, 50), n2 = c(200, 200, 200, 200), m =
                          orr = c(0.25, 0.3, 0.4, 0.2), rho = 0.7, dose_selection_endpoint = "ORR",
                          Lambda1 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A1 = 12,
                          Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
-                         drop = 0,
+                         drop = c(0, 0, 0, 0),
                          enrollment.hold=4){
    
    ######################
@@ -80,9 +80,9 @@ simu.p23trial = function(n1 = c(50, 50, 50, 50), n2 = c(200, 200, 200, 200), m =
    #1. simulate Stage 1 survival data
    for (j in 1:n.arms){
        if (dose_selection_endpoint == "ORR"){
-         dat1[[j]] = simu.single.arm.hz(n=n1[j], m=m[j], orr = orr[j], rho = rho, Lambda=Lambda1, A=A1, drop=drop, DCO=Inf)[[1]]
+         dat1[[j]] = simu.single.arm.hz(n=n1[j], m=m[j], orr = orr[j], rho = rho, Lambda=Lambda1, A=A1, drop=drop[j], DCO=Inf)[[1]]
        } else {
-         dat1[[j]] = simu.single.arm(n=n1[j], m=m[j], Lambda=Lambda1, A=A1, drop=drop, DCO=Inf)[[1]]
+         dat1[[j]] = simu.single.arm(n=n1[j], m=m[j], Lambda=Lambda1, A=A1, drop=drop[j], DCO=Inf)[[1]]
        }
        dat1[[j]] <- subset(dat1[[j]], select = -c(calendarCutoff, survTimeCut, cnsrCut))
        dat1[[j]]$group = j; dat1[[j]]$stage = 1
@@ -102,9 +102,9 @@ simu.p23trial = function(n1 = c(50, 50, 50, 50), n2 = c(200, 200, 200, 200), m =
   dat2 = list(NULL) #control arm is the last one 
   for (j in 1:n.arms){
     if (dose_selection_endpoint == "ORR"){
-      dat2[[j]] = simu.single.arm.hz(n=n2[j], m=m[j], orr = orr[j], rho = rho, Lambda=Lambda2, A=A2, drop=drop, DCO=Inf)[[1]]
+      dat2[[j]] = simu.single.arm.hz(n=n2[j], m=m[j], orr = orr[j], rho = rho, Lambda=Lambda2, A=A2, drop=drop[j], DCO=Inf)[[1]]
     } else {
-      dat2[[j]] = simu.single.arm(n=n2[j], m=m[j], Lambda=Lambda2, A=A2, drop=drop, DCO=Inf)[[1]]
+      dat2[[j]] = simu.single.arm(n=n2[j], m=m[j], Lambda=Lambda2, A=A2, drop=drop[j], DCO=Inf)[[1]]
     } 
      dat2[[j]]$group = j; 
      if (j == n.arms){dat2[[j]]$group = 0}; 

@@ -19,7 +19,7 @@ simu.p23trial(
      (t/12) * as.numeric(t <= 12) + as.numeric(t > 12)
  },
   A2 = 12,
-  drop = 0,
+  drop = c(0, 0, 0, 0),
   enrollment.hold = 4
 )
 }
@@ -44,7 +44,7 @@ simu.p23trial(
 
 \item{A2}{Enrollment period for Stage 2}
 
-\item{drop}{Drop out rate per month}
+\item{drop}{Drop out rate per month of each arm}
 
 \item{enrollment.hold}{Holding period in months after DCO1 of Stage 1 prior to enrollment of Stage 2 patients. 0 means seamless enrollment.}
 }

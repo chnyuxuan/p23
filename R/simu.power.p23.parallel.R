@@ -15,7 +15,7 @@
 #' @param enrollment.hold Holding period in months after DCO1 of Stage 1 prior to enrollment of Stage 2 patients. 0 means seamless enrollment.
 #' @param A2 Enrollment period for Stage 2
 #' @param Lambda2 Enrollment distribution function (CDF) for stage 2.
-#' @param drop Dropout rate per month 
+#' @param drop Dropout rate per year 
 #' @param targetEvents2 Planned target number of events for Stage 2. Either targetEvents2 must be provided. 
 #' @param alpha Type I error (one-sided) for testing the selected dose, usually 0.025.
 #' @param sf Spending functions. acceptable options include all spending functions in gsDesign R package, for example, "gsDesign::sfLDOF"
@@ -89,7 +89,7 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
                                     orr = c(0.25, 0.3, 0.4, 0.2), rho = 0.7, dose_selection_endpoint = "ORR",
                                     Lambda1 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A1 = 12,
                                     Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
-                                    drop = 0,
+                                    drop = c(0, 0, 0, 0),
                                     enrollment.hold=4, DCO1 = 16, targetEvents2=c(300, 380), 
                                     e1 = NULL,
                                     alpha=0.025, sf=gsDesign::sfLDOF, multiplicity.method="simes",
@@ -103,7 +103,7 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
                             orr = c(0.25, 0.3, 0.4, 0.2), rho = 0.7, dose_selection_endpoint = "ORR",
                             Lambda1 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A1 = 12,
                             Lambda2 = function(t){(t/12)*as.numeric(t<= 12) + as.numeric(t > 12)}, A2 = 12,
-                            drop = drop,
+                            drop = c(0, 0, 0, 0),
                             enrollment.hold=4, DCO1 = 16, targetEvents2=c(300, 380),
                             e1 = NULL,
                             alpha=0.025, sf = gsDesign::sfLDOF, multiplicity.method = "simes",
