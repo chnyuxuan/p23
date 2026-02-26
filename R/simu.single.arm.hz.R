@@ -105,7 +105,7 @@ simu.single.arm.hz <- function(n = 100, m = 10, orr = 0.2, rho = 0.7,
     UU = sum(nEachMonth[1:j])
     enterTime[LL:UU] = runif(nEachMonth[j]) + j - 1
   }}
-
+  enterTime = enterTime * A / floor(A)
   survTime = as.numeric(Y)
   
   #trick infinity

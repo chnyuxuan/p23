@@ -193,6 +193,7 @@ conduct.p23 = function(data=NULL, DCO1=16, targetEvents2 = c(300, 380), dose_sel
       mutate(nevents=cumsum(cnsr==0)) %>% 
       filter(nevents<= targetEvents2[1], stage==1) %>% nrow()    
     
+    
     dat.FA <- dat23 %>%
       arrange(calendarTime) %>%               # Sort by time
       dplyr::filter(cnsr == 0) %>%
@@ -201,6 +202,15 @@ conduct.p23 = function(data=NULL, DCO1=16, targetEvents2 = c(300, 380), dose_sel
     
     actualEvents_S1_FA <- dat.FA %>%
       filter(stage==1) %>% nrow()    
+    
+    
+    dat.IA <- dat23 %>%
+      arrange(calendarTime) %>%               # Sort by time
+      dplyr::filter(cnsr == 0) %>%
+      mutate(nevents=cumsum(cnsr==0)) %>% 
+      filter(nevents<= targetEvents2[1])
+    
+    actualTime_IA <- max(dat.IA$calendarTime)
     
     actualTime_FA <- max(dat.FA$calendarTime)
     
@@ -361,7 +371,7 @@ conduct.p23 = function(data=NULL, DCO1=16, targetEvents2 = c(300, 380), dose_sel
   } else if (method == "Disjoint Subjects") {
     o$actualEventsS1 = c(actualEvents_S1_IA, actualEvents_S1_FA)
     o$z1 = z1; o$z2 = matrix(z2, nrow=1); o$w = matrix(w, nrow=1)
-    o$actualTime_FA = actualTime_FA
+    o$actualTime = c(actualTime_IA, actualTime_FA)
     o$n.events_trt = matrix(rep(sel$n.events_IAD[-1], K), byrow=TRUE, nrow = K)
     o$n.events_trt[,s] = n.events[,2]
     o$n.events_ctrl = matrix(rep(sel$n.events_IAD[1], (n.arms-1)*K), byrow=TRUE, nrow = K)

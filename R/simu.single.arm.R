@@ -84,7 +84,7 @@ simu.single.arm = function(n = 100, m = 10,
     UU = sum(nEachMonth[1:j])
     enterTime[LL:UU] = runif(nEachMonth[j]) + j - 1
   }}
-
+  enterTime = enterTime * A / floor(A)
   survTime = as.numeric(Y)
   
   #trick infinity

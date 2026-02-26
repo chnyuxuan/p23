@@ -120,8 +120,8 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
     #Combination Z values
     comb.z = matrix(NA, nrow=nSim, ncol=K)
     bd.z = matrix(NA, nrow=nSim, ncol=K)
-    actual.events = matrix(NA, nrow=nSim, ncol=K)
-    s  = actual.time = rep(NA, nSim) #selected dose
+    actual.events = actual.time = matrix(NA, nrow=nSim, ncol=K)
+    s  = rep(NA, nSim) #selected dose
     
     n2 = c(rep(n2[1], n.arms-1), n2[2])
     
@@ -162,7 +162,7 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
       # now determined by actual events YC ======================================
       if (K == 1) {bd.z[i] = qnorm(1-alpha)} else {
         if(o$method == "Disjoint Subjects"){
-          actual.time[i] = o$actualTime_FA
+          actual.time[i,] = o$actualTime
           if(boundary.recal == TRUE){
             corr.z = o$w[1]*o$w[2]*sqrt(o$actualEventsS1[1]/o$actualEventsS1[K]) + 
               sqrt(1-o$w[1]^2)*sqrt(1-o$w[2]^2)*sqrt((o$actualEvents[1]-o$actualEventsS1[1])/(o$actualEvents[K]-o$actualEventsS1[K]))
@@ -252,7 +252,7 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
     s.all <- c(s.all, results[[i]]$s)
     bd.zall <- rbind(bd.zall, results[[i]]$bd.z)
     actual.eall <- rbind(actual.eall, results[[i]]$actual.events)
-    actual.time.all <- c(actual.time.all, results[[i]]$actual.time)
+    actual.time.all <- rbind(actual.time.all, results[[i]]$actual.time)
   }
   cum.pow=gsd.power(z = comb.zall, bd.z=as.matrix(bd.zall))
   
@@ -271,7 +271,7 @@ simu.power.p23.parallel <- function(nSim=100, n1 = rep(50, 4), n2 = rep(200, 2),
   o$selection = selection
   
   o$actualEvents = colMeans(actual.eall, na.rm=T)
-  o$actual.time = mean(actual.time.all)
+  o$actual.time = colMeans(actual.time.all, na.rm=T)
   
   #Calculate the generalized power by simulation, defined as the correct selection of the best dose in OS and H0 rejected
   
