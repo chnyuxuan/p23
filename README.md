@@ -9,7 +9,7 @@ install.packages("devtools")
 
 #Install package p23
 
-devtools::install_github("phe9480/p23")
+devtools::install_github("chnyuxuan/p23")
 
 #To browse the package functions, type
 
